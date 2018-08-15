@@ -8,7 +8,9 @@ exec 0<&-
 
 set -e -u -x
 
-DEST_IMG="/srv/centos49.tar.gz"
+DEST_IMG="/srv/centos49-i386.tar.gz"
+sed -i -e 's/$basearch/i386/g' /etc/yum.repos.d/*.repo
+
 yum install -y mount
 
 rm -f ${DEST_IMG}
@@ -28,13 +30,13 @@ distroverpkg=centos-release
 
 [c4-base]
 name=CentOS-4 - Base
-baseurl=http://vault.centos.org/4.9/os/x86_64/
+baseurl=http://vault.centos.org/4.9/os/i386/
 gpgcheck=1
 gpgkey=http://vault.centos.org/RPM-GPG-KEY-CentOS-4
 
 [c4-updates]
 name=CentOS-4 - Updates
-baseurl=http://vault.centos.org/4.9/updates/x86_64/
+baseurl=http://vault.centos.org/4.9/updates/i386/
 gpgcheck=1
 gpgkey=http://vault.centos.org/RPM-GPG-KEY-CentOS-4
 EOF
@@ -72,18 +74,22 @@ chroot ${instroot} sh -c 'echo "NETWORKING=yes" > /etc/sysconfig/network'
 chroot ${instroot} ln -f /usr/share/zoneinfo/Etc/UTC /etc/localtime
 
 sed -i \
-    -e '/^mirrorlist/d' \
+    -e '/^mirrorlist/d' -e 's/$basearch/i386/g' \
     -e 's@^#baseurl=http://mirror.centos.org/centos/$releasever/@baseurl=http://vault.centos.org/4.9/@g' \
     ${instroot}/etc/yum.repos.d/CentOS*.repo
 
 ## epel
 curl -f -L -o ${instroot}/tmp/RPM-GPG-KEY-EPEL-4 http://archives.fedoraproject.org/pub/archive/epel/RPM-GPG-KEY-EPEL-4
-curl -f -L -o ${instroot}/tmp/epel-release-4-10.noarch.rpm https://archives.fedoraproject.org/pub/archive/epel/4/x86_64/epel-release-4-10.noarch.rpm
+curl -f -L -o ${instroot}/tmp/epel-release-4-10.noarch.rpm https://archives.fedoraproject.org/pub/archive/epel/4/i386/epel-release-4-10.noarch.rpm
 chroot ${instroot} rpm --import /tmp/RPM-GPG-KEY-EPEL-4
 chroot ${instroot} yum localinstall -y /tmp/epel-release-4-10.noarch.rpm
 rm -f ${instroot}/tmp/epel-release-4-10.noarch.rpm ${instroot}/tmp/RPM-GPG-KEY-EPEL-4
 
 chroot ${instroot} yum clean all
+
+sed -i \
+    -e 's/$basearch/i386/g' \
+    ${instroot}/etc/yum.repos.d/*.repo
 
 ## clean up mounts ($instroot/proc mounted by yum, apparently)
 umount ${instroot}/proc
