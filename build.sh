@@ -76,8 +76,8 @@ sed -i \
     ${instroot}/etc/yum.repos.d/CentOS*.repo
 
 ## epel
-curl -f -L -o ${instroot}/tmp/RPM-GPG-KEY-EPEL-4 http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-4
-curl -f -L -o ${instroot}/tmp/epel-release-4-10.noarch.rpm https://dl.fedoraproject.org/pub/epel/4/x86_64/epel-release-4-10.noarch.rpm
+curl -f -L -o ${instroot}/tmp/RPM-GPG-KEY-EPEL-4 http://archives.fedoraproject.org/pub/archive/epel/RPM-GPG-KEY-EPEL-4
+curl -f -L -o ${instroot}/tmp/epel-release-4-10.noarch.rpm https://archives.fedoraproject.org/pub/archive/epel/4/x86_64/epel-release-4-10.noarch.rpm
 chroot ${instroot} rpm --import /tmp/RPM-GPG-KEY-EPEL-4
 chroot ${instroot} yum localinstall -y /tmp/epel-release-4-10.noarch.rpm
 rm -f ${instroot}/tmp/epel-release-4-10.noarch.rpm ${instroot}/tmp/RPM-GPG-KEY-EPEL-4
